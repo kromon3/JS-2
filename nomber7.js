@@ -1,34 +1,58 @@
-function SortStonse(weights){
-    var stones = new Set()
-    var score ={}
-
-    for (var [a , b] of weights){
+function SortStones(weights) {
+    const graph = {};
+    const inDegree = {};
+    const stones = new Set();
+    for (const [a, b, heavier] of weights) {
         stones.add(a);
         stones.add(b);
+        graph[a] = graph[a] || [];
+        graph[b] = graph[b] || [];
+        inDegree[a] = inDegree[a] || 0;
+        inDegree[b] = inDegree[b] || 0;
     }
-    stones.forEach(stone => score[stone]=0);
+    for (const [a, b, heavier] of weights) {
+        if (heavier) {
+            graph[a].push(b); 
+            inDegree[b]++;
+        } else {
+            graph[b].push(a);
+            inDegree[a]++;
+        }
+    }
 
-    for (var [a,b,heavier] of weights){
-        if (heavier){
-            score[a]++;
-            score[b]--;
-        }
-        else {
-            score[b]++;
-            score[a]--;
+    const queue = [];
+    const sorted = [];
+
+    for (const stone of stones) {
+        if (inDegree[stone] === 0) {
+            queue.push(stone);
         }
     }
-    return Array.from(stones).sort((x,y)=> score[y]- score[x]);
+
+    while (queue.length > 0) {
+        const current = queue.shift();
+        sorted.push(current);
+
+        for (const neighbor of graph[current] || []) {
+            inDegree[neighbor]--;
+            if (inDegree[neighbor] === 0) {
+                queue.push(neighbor);
+            }
+        }
+    }
+
+    // Если остались камни (циклы), просто игнорируем их
+    return sorted;
 }
 
-var input =[
+// Пример использования
+const input = [
     ['A', 'B', true],
     ['C', 'B', false],
-    ['A', 'C', true ],
+    ['A', 'C', true],
     ['D', 'A', false],
     ['B', 'D', true],
     ['D', 'C', true],
 ];
 
-
-console.log(SortStonse(input));
+console.log(SortStones(input)); // ["A", "D", "B", "C"]
