@@ -40,12 +40,8 @@ function SortStones(weights) {
             }
         }
     }
-
-    // Если остались камни (циклы), просто игнорируем их
     return sorted;
 }
-
-// Пример использования
 const input = [
     ['A', 'B', true],
     ['C', 'B', false],
